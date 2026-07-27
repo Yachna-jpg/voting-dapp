@@ -1,329 +1,128 @@
-// Voting Smart Contract for Midnight Network
-// Privacy-preserving voting system with anonymous ballots
+// Simple Voting Contract for Midnight Network
+// Basic voting with privacy preservation
 
-pragma version 0.31.0;
+// Main voting ledger type
+ledger VotingLedger {
+  // Session owner
+  owner: Address,
+  
+  // Voting session active status
+  isActive: Bool,
+  
+  // Vote counts for each candidate (max 5 candidates)
+  votes: [UInt32; 5],
+  
+  // Total votes cast
+  totalVotes: UInt32,
+  
+  // Voter commitments (who has voted)
+  votedCommitments: [Field],
+}
 
-// ============================================================================
-// PUBLIC DATA
-// ============================================================================
+// Voter credentials (private witness)
+witness VoterCredentials {
+  voterId: Field,
+  secretKey: Field,
+}
 
-/// Public voting session configuration
+// Ballot (private witness)
+witness Ballot {
+  candidateIndex: UInt32,
+  nonce: Field,
+}
+
+// Initialize a new voting session
 @public
-type VotingSession = {
-    /// Unique session identifier
-    sessionId: Field,
-    /// Total number of registered voters
-    totalVoters: UInt32,
-    /// Number of candidates/options
-    numCandidates: UInt32,
-    /// Voting start timestamp
-    startTime: UInt64,
-    /// Voting end timestamp
-    endTime: UInt64,
-    /// Whether the session is active
-    isActive: Bool,
-    /// Whether results have been tallied
-    isTallied: Bool
-};
+initialize(owner: Address): VotingLedger {
+  VotingLedger {
+    owner: owner,
+    isActive: true,
+    votes: [0, 0, 0, 0, 0],
+    totalVotes: 0,
+    votedCommitments: [],
+  }
+}
 
-/// Public vote counts for each candidate (aggregated, anonymous)
+// Cast a vote
 @public
-type VoteCounts = {
-    /// Array of vote counts for each candidate
-    counts: [UInt32],
-    /// Total votes cast
-    totalVotes: UInt32
-};
-
-// ============================================================================
-// PRIVATE DATA (WITNESS)
-// ============================================================================
-
-/// Private voter credentials
-@witness
-type VoterCredentials = {
-    /// Unique voter ID (private)
-    voterId: Field,
-    /// Voter's secret key
-    secretKey: Field,
-    /// Whether this voter has already voted
-    hasVoted: Bool
-};
-
-/// Private ballot
-@witness
-type Ballot = {
-    /// The candidate index being voted for (0-indexed)
-    candidateIndex: UInt32,
-    /// Random nonce for privacy
-    nonce: Field
-};
-
-/// Private proof of eligibility
-@witness
-type EligibilityProof = {
-    /// Merkle proof of voter registration
-    merkleProof: [Field],
-    /// Voter's public commitment
-    commitment: Field
-};
-
-// ============================================================================
-// LEDGER STATE
-// ============================================================================
-
-/// Main ledger state for the voting contract
-@ledger
-type VotingLedger = {
-    /// Current voting session
-    session: VotingSession,
-    /// Aggregated vote counts
-    voteCounts: VoteCounts,
-    /// Set of voter commitments (who has voted)
-    votedCommitments: [Field],
-    /// Session creator/owner
-    owner: Address
-};
-
-// ============================================================================
-// ERRORS
-// ============================================================================
-
-@error(1, "Voting session is not active");
-@error(2, "Voting session has ended");
-@error(3, "Voter has already voted");
-@error(4, "Invalid candidate index");
-@error(5, "Invalid eligibility proof");
-@error(6, "Voter not registered");
-@error(7, "Cannot modify tallied session");
-@error(8, "Invalid session configuration");
-
-// ============================================================================
-// MAIN FUNCTIONS
-// ============================================================================
-
-/// Initialize a new voting session
-/// @param sessionConfig - The voting session configuration
-/// @param numCandidates - Number of candidates/options
-/// @return New voting ledger state
-@public
-fn initialize(
-    sessionConfig: VotingSession,
-    numCandidates: UInt32
+castVote(
+  credentials: VoterCredentials,
+  ballot: Ballot
 ): VotingLedger {
-    // Validate session configuration
-    assert(sessionConfig.totalVoters > 0, @8);
-    assert(sessionConfig.numCandidates == numCandidates, @8);
-    assert(sessionConfig.startTime < sessionConfig.endTime, @8);
-    assert(numCandidates > 0 && numCandidates <= 10, @8);
-    
-    // Initialize vote counts array
-    let initialCounts: [UInt32] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    
-    VotingLedger {
-        session: sessionConfig,
-        voteCounts: VoteCounts {
-            counts: initialCounts,
-            totalVotes: 0
-        },
-        votedCommitments: [],
-        owner: msgSender()
+  let state = getState();
+  
+  // Check session is active
+  assert(state.isActive == true);
+  
+  // Validate candidate index
+  assert(ballot.candidateIndex < 5);
+  
+  // Create voter commitment
+  let commitment = hash(credentials.voterId, credentials.secretKey);
+  
+  // Check voter hasn't already voted
+  let hasVoted = false;
+  for i in 0..state.votedCommitments.length {
+    if state.votedCommitments[i] == commitment {
+      hasVoted = true;
     }
+  }
+  assert(hasVoted == false);
+  
+  // Update vote counts
+  let newVotes = state.votes;
+  newVotes[ballot.candidateIndex] = newVotes[ballot.candidateIndex] + 1;
+  
+  // Add commitment to voted list
+  let newCommitments = state.votedCommitments;
+  newCommitments.push(commitment);
+  
+  // Disclose commitment (proves someone voted, but not who)
+  disclose(commitment);
+  
+  VotingLedger {
+    owner: state.owner,
+    isActive: state.isActive,
+    votes: newVotes,
+    totalVotes: state.totalVotes + 1,
+    votedCommitments: newCommitments,
+  }
 }
 
-/// Cast a vote (private ballot)
-/// @param credentials - Voter's private credentials
-/// @param ballot - Private ballot with candidate choice
-/// @param eligibilityProof - Proof of voter eligibility
-/// @return Updated ledger state
+// End the voting session
 @public
-fn castVote(
-    credentials: VoterCredentials,
-    ballot: Ballot,
-    eligibilityProof: EligibilityProof
-): VotingLedger {
-    let state = getState();
-    
-    // Check session is active
-    assert(state.session.isActive, @1);
-    assert(getCurrentTime() >= state.session.startTime, @1);
-    assert(getCurrentTime() <= state.session.endTime, @2);
-    assert(!state.session.isTallied, @7);
-    
-    // Validate candidate index
-    assert(ballot.candidateIndex < state.session.numCandidates, @4);
-    
-    // Verify eligibility proof
-    let voterCommitment = hash(credentials.voterId, credentials.secretKey);
-    verifyMerkleProof(
-        eligibilityProof.commitment,
-        voterCommitment,
-        eligibilityProof.merkleProof
-    );
-    
-    // Check voter hasn't already voted
-    let hasVoted = false;
-    for (let i = 0; i < state.votedCommitments.length; i++) {
-        if (state.votedCommitments[i] == voterCommitment) {
-            hasVoted = true;
-            break;
-        }
-    }
-    assert(!hasVoted, @3);
-    
-    // Disclose only that a valid vote was cast (not who voted or for whom)
-    disclose(voterCommitment);
-    
-    // Update vote counts (privacy-preserving aggregation)
-    let newCounts = state.voteCounts.counts;
-    newCounts[ballot.candidateIndex] = newCounts[ballot.candidateIndex] + 1;
-    
-    // Add voter commitment to voted list
-    let newVotedCommitments = state.votedCommitments;
-    newVotedCommitments.push(voterCommitment);
-    
-    VotingLedger {
-        session: state.session,
-        voteCounts: VoteCounts {
-            counts: newCounts,
-            totalVotes: state.voteCounts.totalVotes + 1
-        },
-        votedCommitments: newVotedCommitments,
-        owner: state.owner
-    }
+endSession(): VotingLedger {
+  let state = getState();
+  assert(msgSender() == state.owner);
+  
+  VotingLedger {
+    owner: state.owner,
+    isActive: false,
+    votes: state.votes,
+    totalVotes: state.totalVotes,
+    votedCommitments: state.votedCommitments,
+  }
 }
 
-/// End the voting session
-/// @return Updated ledger state with session marked as inactive
-@public
-fn endSession(): VotingLedger {
-    let state = getState();
-    
-    // Only owner can end session
-    assert(msgSender() == state.owner, true);
-    
-    // Check session is currently active
-    assert(state.session.isActive, @1);
-    assert(!state.session.isTallied, @7);
-    
-    VotingLedger {
-        session: VotingSession {
-            sessionId: state.session.sessionId,
-            totalVoters: state.session.totalVoters,
-            numCandidates: state.session.numCandidates,
-            startTime: state.session.startTime,
-            endTime: state.session.endTime,
-            isActive: false,
-            isTallied: false
-        },
-        voteCounts: state.voteCounts,
-        votedCommitments: state.votedCommitments,
-        owner: state.owner
-    }
+// View: Get vote counts
+@view
+getVoteCounts(): [UInt32; 5] {
+  getState().votes
 }
 
-/// Tallied the final results (can only be done once)
-/// @return Updated ledger state with results finalized
-@public
-fn tallyResults(): VotingLedger {
-    let state = getState();
-    
-    // Only owner can tally results
-    assert(msgSender() == state.owner, true);
-    assert(!state.session.isActive, @1);
-    assert(!state.session.isTallied, @7);
-    
-    // Disclose final vote counts (public results)
-    for (let i = 0; i < state.session.numCandidates; i++) {
-        disclose(state.voteCounts.counts[i]);
-    }
-    disclose(state.voteCounts.totalVotes);
-    
-    VotingLedger {
-        session: VotingSession {
-            sessionId: state.session.sessionId,
-            totalVoters: state.session.totalVoters,
-            numCandidates: state.session.numCandidates,
-            startTime: state.session.startTime,
-            endTime: state.session.endTime,
-            isActive: false,
-            isTallied: true
-        },
-        voteCounts: state.voteCounts,
-        votedCommitments: state.votedCommitments,
-        owner: state.owner
-    }
+// View: Get total votes
+@view
+getTotalVotes(): UInt32 {
+  getState().totalVotes
 }
 
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
-
-/// Verify a Merkle proof
-/// @param commitment - The commitment to verify
-/// @param leaf - The leaf node
-/// @param proof - Merkle proof path
-fn verifyMerkleProof(
-    commitment: Field,
-    leaf: Field,
-    proof: [Field]
-): Bool {
-    // Simplified Merkle proof verification
-    // In production, this would include full Merkle tree verification
-    let computedRoot = leaf;
-    for (let i = 0; i < proof.length; i++) {
-        computedRoot = hash(computedRoot, proof[i]);
-    }
-    assert(computedRoot == commitment, @5);
-    true
+// View: Check if session is active
+@view
+isSessionActive(): Bool {
+  getState().isActive
 }
 
-/// Get current timestamp
-fn getCurrentTime(): UInt64 {
-    // This would be implemented using Midnight's time oracle
-    // For now, returns a placeholder
-    0
-}
-
-/// Hash function for commitments
+// Helper function to hash
 fn hash(a: Field, b: Field): Field {
-    // Simplified hash - in production use Poseidon or similar
-    (a * b + a + b) % Field::MODULUS
-}
-
-// ============================================================================
-// VIEWS (Read-only queries)
-// ============================================================================
-
-/// Get current vote counts (public information)
-@view
-fn getVoteCounts(): VoteCounts {
-    let state = getState();
-    state.voteCounts
-}
-
-/// Get voting session info
-@view
-fn getSessionInfo(): VotingSession {
-    let state = getState();
-    state.session
-}
-
-/// Check if a voter has voted (by commitment)
-@view
-fn hasVoterVoted(commitment: Field): Bool {
-    let state = getState();
-    for (let i = 0; i < state.votedCommitments.length; i++) {
-        if (state.votedCommitments[i] == commitment) {
-            return true;
-        }
-    }
-    false
-}
-
-/// Get total number of votes cast
-@view
-fn getTotalVotes(): UInt32 {
-    let state = getState();
-    state.voteCounts.totalVotes
+  (a * b + a + b) % Field::MODULUS
 }

@@ -1,5 +1,7 @@
 # Voting DApp - Privacy-Preserving Voting on Midnight
 
+⚠️ **NOTE:** This project was built for Compact v0.31.x. The current Compact compiler (v0.5.1) has breaking syntax changes. **The contract needs to be updated** to work with the latest compiler. See `CONTRACT_UPDATE_NEEDED.md` for details.
+
 A secure, anonymous voting system built on Midnight Network that uses zero-knowledge proofs to protect voter privacy while ensuring verifiable election results.
 
 ## Contract Address

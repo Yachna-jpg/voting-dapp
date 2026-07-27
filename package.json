@@ -1,0 +1,43 @@
+{
+  "name": "voting-dapp",
+  "version": "1.0.0",
+  "description": "A privacy-preserving voting dApp built on Midnight",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "cd api && npm run dev",
+    "dev:web": "cd src && npm run dev",
+    "build": "npm run build:contract && npm run build:api && npm run build:web",
+    "build:contract": "cd contract && npm run build",
+    "build:api": "cd api && npm run build",
+    "build:web": "cd src && npm run build",
+    "compact": "cd contract && compact build",
+    "deploy": "cd bboard-cli && npm run deploy",
+    "preprod-remote": "cd bboard-cli && npm run preprod-remote",
+    "test": "npm run test:contract && npm run test:api && npm run test:web",
+    "test:contract": "cd contract && npm test",
+    "test:api": "cd api && npm test",
+    "test:web": "cd src && npm test",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
+  },
+  "keywords": [
+    "midnight",
+    "voting",
+    "privacy",
+    "blockchain",
+    "zkproof",
+    "dapp"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "@types/node": "^20.11.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

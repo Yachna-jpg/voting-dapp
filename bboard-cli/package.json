@@ -1,0 +1,30 @@
+{
+  "name": "voting-dapp-cli",
+  "version": "1.0.0",
+  "description": "CLI tool for Voting DApp deployment and management",
+  "type": "module",
+  "bin": {
+    "voting-cli": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "deploy": "tsx src/commands/deploy.ts",
+    "preprod-remote": "tsx src/commands/deploy.ts --network preprod"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/midnight-js": "^0.2.0",
+    "commander": "^12.0.0",
+    "dotenv": "^16.4.1",
+    "inquirer": "^9.2.14",
+    "ora": "^8.0.1",
+    "chalk": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

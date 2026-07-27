@@ -69,10 +69,10 @@ export default function CreateSession() {
 
       {/* Connect Wallet Button above card */}
       {!isConnected && (
-        <div className="flex justify-center mb-6">
+        <div className="w-full mb-4">
           <button 
             onClick={connect}
-            className="w-full max-w-md py-3 px-6 rounded-xl border border-glow-cyan/30 bg-midnight-900/50 backdrop-blur-md text-glow-cyan font-semibold transition-all hover:bg-glow-cyan/10 hover:shadow-[0_0_15px_rgba(0,242,254,0.2)]"
+            className="w-full py-3.5 px-6 rounded-xl border border-glow-cyan/40 bg-midnight-950/40 backdrop-blur-md text-glow-cyan font-medium transition-all hover:bg-glow-cyan/10 hover:shadow-[0_0_15px_rgba(0,242,254,0.2)]"
           >
             Connect Wallet
           </button>

@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "../",
+  "sources": ["voting.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAcA;;;;;;;;;;;;;;;;MAOA,AAAA,QASC;;;;;;;;;;;;;;;;;;;;;;OAAA;MAED,AAAA,UAEC;;;;;;;;;;;;;;;;;;;;;;OAAA;;;;;;;;;;GAlBA;EAFD;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IALA;;;;;;;;;yEAA+B;IAC/B;;;;;;;;;yEAAmC;IACnC;;;;;;;;;yEAAkC;IAClC;;;;;;;;;yEAAsC;IAGpC;;;;;;;;;yEAAM;;;;;;;GACP;EAED,AAAA,cAAiC;;0DAAjC,WAAiC;;;;;;;;;;;;;;GAAA;EACjC,AAAA,cAAiC;;0DAAjC,WAAiC;;;;;;;;;;;;;;GAAA;EAEjC,AAAA,WASC;oDARQ;;;;;;;;;;;yHAAM;;;;UAEP,QAAsB;UACtB,KAAmB;UAEzB,KAAU;IAAV;;;;;;;;;;6FAAA,KAAU;;;;wEAAA;UACV,KAAc;IAAd;;;;;;;;;;6FAAA,KAAc;;;;wEAAA;IACd;;;;;;;2HAAiB,QAAM;;yEAAlB;;GACN;EAED,AAAA,aAEC;IADC;;;;;;;;;yEAAM;;GACP;;;;;;;;;;;;;;;;IAzBD;qCAAA;;;;;;;;;;;0GAA+B;KAAA;IAC/B;qCAAA;;;;;;;;;;;0GAAmC;KAAA;IACnC;qCAAA;;;;;;;;;;;0GAAkC;KAAA;IAClC;qCAAA;;;;;;;;;;;0GAAsC;KAAA;;;;;;;;;;;;"
+}

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useWallet } from '../hooks/useWallet';
 import { useVotingContract } from '../hooks/useVotingContract';
-import { Vote, Loader2, AlertCircle } from 'lucide-react';
+import { Vote as VoteIcon, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Vote() {
   const { isConnected } = useWallet();
-  const { session, voteCounts, fetchSessionInfo, castVote, isLoading } = useVotingContract();
+  const { session, voteCounts, fetchSessionInfo, isLoading } = useVotingContract();
   const [selectedCandidate, setSelectedCandidate] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -73,7 +73,7 @@ export default function Vote() {
       <div className="card mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-white flex items-center">
-            <Vote className="w-6 h-6 mr-2 text-midnight-400" />
+            <VoteIcon className="w-6 h-6 mr-2 text-midnight-400" />
             Active Voting Session
           </h2>
           <span className="px-4 py-2 bg-green-500/20 text-green-400 rounded-full text-sm font-semibold">
@@ -144,10 +144,10 @@ export default function Vote() {
         <div className="flex items-center space-x-4">
           <button
             onClick={handleVote}
-            disabled={!isConnected || selectedCandidate === null || isLoading}
+            disabled={!isConnected || selectedCandidate === null || isLoading || isSubmitting}
             className="btn-primary flex-1 py-4 text-lg"
           >
-            {isLoading ? (
+            {isLoading || isSubmitting ? (
               <span className="flex items-center justify-center">
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 Processing Vote...

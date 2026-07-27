@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Vote, Shield, Eye, Users, ArrowRight } from 'lucide-react';
+import { Shield, Eye, Users, ArrowRight } from 'lucide-react';
 
 export default function Home() {
   return (

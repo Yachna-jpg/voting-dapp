@@ -56,7 +56,7 @@ This will:
 **In Windows (PowerShell/VS Code):**
 
 1. Open `src/src/hooks/useVotingContract.ts`
-2. Find line 5 with `<YOUR_DEPLOYED_CONTRACT_ADDRESS>`
+2. Find line 5 with `0x7a3f8b9e6c4d2a1f5e8d9c0b7a6f3e4d2c1b8a9f`
 3. Replace with your actual address
 4. Save the file
 

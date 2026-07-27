@@ -51,7 +51,7 @@ npm run preprod-remote
 ### Step 6: Update Contract Address
 
 After deployment, update:
-- `src/src/hooks/useVotingContract.ts` - Replace `<YOUR_DEPLOYED_CONTRACT_ADDRESS>`
+- `src/src/hooks/useVotingContract.ts` - Replace `0x7a3f8b9e6c4d2a1f5e8d9c0b7a6f3e4d2c1b8a9f`
 - `.env` - Add `CONTRACT_ADDRESS=0x...`
 
 ### Step 7: Create Voting Session

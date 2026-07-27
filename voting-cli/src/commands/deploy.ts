@@ -39,7 +39,7 @@ export async function deploy(options: DeployOptions) {
     console.log(chalk.white('2. Update the following files:'));
     console.log(chalk.gray('   - src/src/hooks/useVotingContract.ts'));
     console.log(chalk.gray('   - .env (create if not exists)'));
-    console.log(chalk.white('3. Replace <YOUR_DEPLOYED_CONTRACT_ADDRESS> with the actual address\n'));
+    console.log(chalk.white('3. Replace 0x7a3f8b9e6c4d2a1f5e8d9c0b7a6f3e4d2c1b8a9f with the actual address\n'));
     
     console.log(chalk.white('Example:'));
     console.log(chalk.gray(`   const CONTRACT_ADDRESS = '${contractAddress}';\n`));

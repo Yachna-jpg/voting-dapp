@@ -1,128 +1,35 @@
-// Simple Voting Contract for Midnight Network
-// Basic voting with privacy preservation
+pragma language_version 0.23;
 
-// Main voting ledger type
-ledger VotingLedger {
-  // Session owner
-  owner: Address,
-  
-  // Voting session active status
-  isActive: Bool,
-  
-  // Vote counts for each candidate (max 5 candidates)
-  votes: [UInt32; 5],
-  
-  // Total votes cast
-  totalVotes: UInt32,
-  
-  // Voter commitments (who has voted)
-  votedCommitments: [Field],
+import CompactStandardLibrary;
+
+export enum SessionState {
+  ACTIVE,
+  ENDED
 }
 
-// Voter credentials (private witness)
-witness VoterCredentials {
-  voterId: Field,
-  secretKey: Field,
+export ledger owner: Bytes<32>;
+export ledger status: SessionState;
+export ledger totalVotes: Counter;
+export ledger candidateVotes: Counter;
+
+constructor() {
+  status = SessionState.ACTIVE;
 }
 
-// Ballot (private witness)
-witness Ballot {
-  candidateIndex: UInt32,
-  nonce: Field,
+witness voterSecret(): Bytes<32>;
+witness candidateId(): Bytes<32>;
+
+export circuit castVote(): [] {
+  assert(status == SessionState.ACTIVE, "Session is not active");
+  
+  const secret = voterSecret();
+  const cId = candidateId();
+  
+  totalVotes.increment(1);
+  candidateVotes.increment(1);
+  owner = disclose(secret); 
 }
 
-// Initialize a new voting session
-@public
-initialize(owner: Address): VotingLedger {
-  VotingLedger {
-    owner: owner,
-    isActive: true,
-    votes: [0, 0, 0, 0, 0],
-    totalVotes: 0,
-    votedCommitments: [],
-  }
-}
-
-// Cast a vote
-@public
-castVote(
-  credentials: VoterCredentials,
-  ballot: Ballot
-): VotingLedger {
-  let state = getState();
-  
-  // Check session is active
-  assert(state.isActive == true);
-  
-  // Validate candidate index
-  assert(ballot.candidateIndex < 5);
-  
-  // Create voter commitment
-  let commitment = hash(credentials.voterId, credentials.secretKey);
-  
-  // Check voter hasn't already voted
-  let hasVoted = false;
-  for i in 0..state.votedCommitments.length {
-    if state.votedCommitments[i] == commitment {
-      hasVoted = true;
-    }
-  }
-  assert(hasVoted == false);
-  
-  // Update vote counts
-  let newVotes = state.votes;
-  newVotes[ballot.candidateIndex] = newVotes[ballot.candidateIndex] + 1;
-  
-  // Add commitment to voted list
-  let newCommitments = state.votedCommitments;
-  newCommitments.push(commitment);
-  
-  // Disclose commitment (proves someone voted, but not who)
-  disclose(commitment);
-  
-  VotingLedger {
-    owner: state.owner,
-    isActive: state.isActive,
-    votes: newVotes,
-    totalVotes: state.totalVotes + 1,
-    votedCommitments: newCommitments,
-  }
-}
-
-// End the voting session
-@public
-endSession(): VotingLedger {
-  let state = getState();
-  assert(msgSender() == state.owner);
-  
-  VotingLedger {
-    owner: state.owner,
-    isActive: false,
-    votes: state.votes,
-    totalVotes: state.totalVotes,
-    votedCommitments: state.votedCommitments,
-  }
-}
-
-// View: Get vote counts
-@view
-getVoteCounts(): [UInt32; 5] {
-  getState().votes
-}
-
-// View: Get total votes
-@view
-getTotalVotes(): UInt32 {
-  getState().totalVotes
-}
-
-// View: Check if session is active
-@view
-isSessionActive(): Bool {
-  getState().isActive
-}
-
-// Helper function to hash
-fn hash(a: Field, b: Field): Field {
-  (a * b + a + b) % Field::MODULUS
+export circuit endSession(): [] {
+  status = SessionState.ENDED;
 }

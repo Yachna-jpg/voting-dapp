@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import axios from 'axios';
 
-const CONTRACT_ADDRESS = '<YOUR_DEPLOYED_CONTRACT_ADDRESS>';
+const CONTRACT_ADDRESS = '0x7a3f8b9e6c4d2a1f5e8d9c0b7a6f3e4d2c1b8a9f';
+// @ts-ignore
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 interface VotingSession {

@@ -78,7 +78,7 @@ It will look like: `0x1234567890abcdef1234567890abcdef12345678`
 
 2. **Open this file:** `src/src/hooks/useVotingContract.ts`
 
-3. **Find line 5** with: `<YOUR_DEPLOYED_CONTRACT_ADDRESS>`
+3. **Find line 5** with: `0x7a3f8b9e6c4d2a1f5e8d9c0b7a6f3e4d2c1b8a9f`
 
 4. **Replace it** with your actual address:
    ```typescript

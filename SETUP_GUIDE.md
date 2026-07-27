@@ -196,7 +196,7 @@ cd ..
 
 1. **Update `src/src/hooks/useVotingContract.ts`:**
    - Open the file
-   - Find line 5: `const CONTRACT_ADDRESS = '<YOUR_DEPLOYED_CONTRACT_ADDRESS>';`
+   - Find line 5: `const CONTRACT_ADDRESS = '0x7a3f8b9e6c4d2a1f5e8d9c0b7a6f3e4d2c1b8a9f';`
    - Replace with your actual address:
      ```typescript
      const CONTRACT_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';

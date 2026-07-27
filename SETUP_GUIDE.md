@@ -100,7 +100,7 @@ Follow these steps IN ORDER to get your Voting DApp running.
 **Open PowerShell or Command Prompt** (NOT WSL):
 
 ```bash
-docker run -d -p 6300:6300 -e PORT=6300 midnightnetwork/proof-server:8.1.0
+docker run -d -p 6300:6300 -e PORT=6300 midnightnetwork/proof-server:latest
 ```
 
 **Verify it's running:**

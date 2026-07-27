@@ -216,7 +216,7 @@ curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/r
 ### 7. Start Proof Server (Docker)
 
 ```bash
-docker run -d -p 6300:6300 -e PORT=6300 midnightnetwork/proof-server:8.1.0
+docker run -d -p 6300:6300 -e PORT=6300 midnightnetwork/proof-server:latest
 ```
 
 Verify it's running:

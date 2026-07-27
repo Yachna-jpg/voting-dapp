@@ -3,7 +3,7 @@
 ## Pre-Deployment
 
 - [ ] Compact compiler installed (v0.31.1+)
-- [ ] Docker proof server running
+- [ ] Docker proof server running (`docker run -d -p 6300:6300 midnightnetwork/proof-server:latest`)
 - [ ] All dependencies installed
 - [ ] Wallet installed and funded
 - [ ] Git repository initialized

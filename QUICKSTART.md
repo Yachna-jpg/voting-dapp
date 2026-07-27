@@ -15,7 +15,7 @@ cd bboard-cli && npm install && cd ..
 ### Step 2: Start Proof Server
 
 ```bash
-docker run -d -p 6300:6300 -e PORT=6300 midnightnetwork/proof-server:8.1.0
+docker run -d -p 6300:6300 -e PORT=6300 midnightnetwork/proof-server:latest
 ```
 
 ### Step 3: Start Development Servers
